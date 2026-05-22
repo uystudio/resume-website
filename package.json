@@ -1,0 +1,13 @@
+{
+  "name": "resume-website",
+  "version": "1.0.0",
+  "description": "帕尔哈提·艾力 个人简历网站",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "multer": "^2.1.1"
+  }
+}
