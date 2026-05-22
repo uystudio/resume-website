@@ -53,6 +53,17 @@
   .preview-close{position:absolute;top:20px;right:28px;font-size:1.8rem;color:#fff;cursor:pointer;z-index:201;opacity:.6;}
   .preview-close:hover{opacity:1}
   .preview-title{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:#ccc;font-size:.85rem}
+  /* 手机适配 */
+  @media(max-width:640px){
+    body{padding:20px 12px}
+    h1{font-size:1.2rem}
+    .item{flex-wrap:wrap;gap:10px}
+    .item .btns{width:100%;justify-content:flex-end}
+    form .row{flex-direction:column}
+    form .btn-row{flex-wrap:wrap}
+    .file-label{font-size:.72rem;padding:6px 10px}
+    .modal{width:95%;padding:16px}
+  }
   .msg{font-size:.8rem;padding:8px 12px;border-radius:5px;margin-bottom:12px;display:none}
   .msg.ok{display:block;background:rgba(52,211,153,.12);color:#34d399;border:1px solid rgba(52,211,153,.15)}
   .msg.err{display:block;background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.15)}
