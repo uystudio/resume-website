@@ -69,6 +69,12 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
 
 app.get('/api/portfolio', (_req, res) => res.json(load()));
 
+// 本地全量保存（无需 GitHub Token）
+app.post('/api/portfolio/local-save', (req, res) => {
+  save(req.body);
+  res.json({ ok: true });
+});
+
 ['videos', 'photos', 'creations'].forEach(cat => {
   app.post('/api/portfolio/' + cat, (req, res) => {
     const data = load();
