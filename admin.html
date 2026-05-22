@@ -168,8 +168,9 @@
 <script>
 const OWNER = 'uystudio';
 const REPO = 'resume-website';
-const API = `https://api.github.com/repos/${OWNER}/${REPO}/contents`;
+const GH_API = `https://api.github.com/repos/${OWNER}/${REPO}/contents`;
 const RAW = `https://raw.githubusercontent.com/${OWNER}/${REPO}/main`;
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
 // 显示用 raw URL（立即可见），存储用相对路径
 function thumbSrc(path) {
@@ -215,12 +216,48 @@ async function gh(path, method = 'GET', body = null) {
     headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
   };
   if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(API + '/' + path, opts);
+  const res = await fetch(GH_API + '/' + path, opts);
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || res.statusText);
   }
   return res.json();
+}
+
+// 上传文件（本地用 ffmpeg 处理，线上用 GitHub API）
+async function uploadFile(inputEl, statusEl, thumbInput) {
+  const file = inputEl.files[0];
+  if (!file) return;
+  statusEl.textContent = '...'; statusEl.classList.add('show');
+
+  if (isLocal) {
+    // 本地后端：用 ffmpeg 处理视频
+    const fd = new FormData(); fd.append('file', file);
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.ok) {
+        thumbInput.value = data.path;
+        statusEl.textContent = '✓';
+        if (data.preview) msg('封面 + 预览短片已生成', true);
+        else msg('已上传', true);
+      } else { statusEl.textContent = '✗'; msg(data.error, false); }
+    } catch(e) { statusEl.textContent = '✗'; msg('上传失败', false); }
+  } else {
+    // 线上：直传 GitHub
+    try {
+      const path = await uploadToGH(file);
+      thumbInput.value = path;
+      statusEl.textContent = '✓';
+      msg('已上传到仓库', true);
+    } catch(e) {
+      statusEl.textContent = '✗';
+      const em = e.message;
+      if (em.includes('40MB')) msg(em, false);
+      else if (em.includes('401')) msg('Token 无效或已过期', false);
+      else msg('上传失败: ' + em, false);
+    }
+  }
 }
 
 // 上传图片到 GitHub（base64）
@@ -351,22 +388,6 @@ document.getElementById('edit-form').onsubmit = async function(e) {
   closeModal(); render();
   msg('已保存', true);
 };
-
-// 文件上传
-async function uploadFile(inputEl, statusEl, thumbInput) {
-  const file = inputEl.files[0];
-  if (!file) return;
-  statusEl.textContent = '...'; statusEl.classList.add('show');
-  try {
-    const path = await uploadToGH(file);
-    thumbInput.value = path;
-    statusEl.textContent = '✓';
-    msg('图片已上传到仓库', true);
-  } catch(e) {
-    statusEl.textContent = '✗';
-    msg('上传失败: ' + e.message, false);
-  }
-}
 
 ['video','photo','creation'].forEach(type => {
   const input = document.getElementById(type + '-file');

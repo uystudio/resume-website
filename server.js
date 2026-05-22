@@ -47,16 +47,24 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
   const isVideo = /\.(mp4|mov|avi|mkv|webm|flv)/.test(ext);
   let thumbPath = 'images/' + req.file.filename;
 
+  let previewPath = null;
   if (isVideo && FFMPEG) {
-    const thumbName = path.basename(req.file.filename, ext) + '.jpg';
-    const outputFile = path.join(UPLOAD_DIR, thumbName);
+    const baseName = path.basename(req.file.filename, ext);
+    const thumbFile = path.join(UPLOAD_DIR, baseName + '.jpg');
+    const clipFile  = path.join(UPLOAD_DIR, baseName + '_preview.mp4');
     try {
-      require('child_process').execSync(`ffmpeg -y -i "${req.file.path}" -vframes 1 -q:v 4 "${outputFile}"`, { stdio: 'ignore' });
-      thumbPath = 'images/' + thumbName;
+      // 第一帧封面
+      require('child_process').execSync(
+        `ffmpeg -y -i "${req.file.path}" -vframes 1 -q:v 4 "${thumbFile}"`, { stdio: 'ignore' });
+      thumbPath = 'images/' + baseName + '.jpg';
+      // 前 8 秒预览短片（480p，低码率，控制在 ~6MB 以内）
+      require('child_process').execSync(
+        `ffmpeg -y -i "${req.file.path}" -t 8 -vf scale=854:480 -c:v libx264 -crf 30 -an "${clipFile}"`, { stdio: 'ignore' });
+      previewPath = 'images/' + baseName + '_preview.mp4';
     } catch {}
   }
 
-  res.json({ ok: true, path: thumbPath, type: isVideo ? 'video' : 'image' });
+  res.json({ ok: true, path: thumbPath, preview: previewPath, type: isVideo ? 'video' : 'image' });
 });
 
 app.get('/api/portfolio', (_req, res) => res.json(load()));
