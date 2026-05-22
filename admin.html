@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台管理 — 作品集</title>
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#0a0a14;color:#e0e0f0;max-width:820px;margin:0 auto;padding:32px 20px;}
+  h1{font-size:1.4rem;color:#c4b5fd;margin-bottom:4px}
+  .back{font-size:.78rem;color:#6a6a88;margin-bottom:32px;display:inline-block;text-decoration:none}
+  .back:hover{color:#c4b5fd}
+  h2{font-size:1rem;color:#a78bfa;margin:32px 0 12px;padding-bottom:8px;border-bottom:1px solid #1e1e38}
+  .list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+  .item{background:#0d0d20;border:1px solid #1c1c38;border-radius:8px;padding:14px 18px;display:flex;align-items:center;gap:14px;}
+  .item img{width:80px;height:50px;object-fit:cover;border-radius:4px;background:#050510;flex-shrink:0}
+  .item-info{flex:1;min-width:0}
+  .item-info strong{display:block;font-size:.88rem;margin-bottom:2px}
+  .item-info span{font-size:.74rem;color:#6a6a88}
+  .item .btns{display:flex;gap:6px;flex-shrink:0}
+  .item button{padding:5px 12px;border-radius:5px;border:1px solid #2a2a48;background:transparent;color:#9a9ab8;cursor:pointer;font-size:.74rem;transition:all .2s;}
+  .item button:hover{border-color:#c084fc;color:#c084fc}
+  .item button.preview-btn:hover{border-color:#34d399;color:#34d399}
+  .item button.edit-btn:hover{border-color:#60a5fa;color:#60a5fa}
+  .item button.del-btn:hover{border-color:#f87171;color:#f87171}
+  .empty{color:#4a4a68;font-size:.82rem;text-align:center;padding:24px 0}
+  form{background:#0d0d20;border:1px solid #1c1c38;border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px;}
+  form input,form textarea{background:#050510;border:1px solid #1e1e38;border-radius:5px;padding:9px 12px;color:#e0e0f0;font-size:.82rem;font-family:inherit;}
+  form textarea{resize:vertical;min-height:50px}
+  form ::placeholder{color:#4a4a68}
+  form .row{display:flex;gap:10px}
+  form .row input{flex:1}
+  form .btn-row{display:flex;gap:10px;align-items:center}
+  form button{padding:9px 18px;border-radius:5px;border:none;background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;font-size:.82rem;font-weight:600;cursor:pointer;transition:opacity .2s;}
+  form button:hover{opacity:.85}
+  form button.cancel{background:transparent;border:1px solid #2a2a48;color:#9a9ab8;font-weight:400}
+  .upload-status{font-size:.74rem;color:#34d399;display:none}
+  .upload-status.show{display:inline}
+  .file-label{display:inline-block;padding:8px 14px;border-radius:5px;border:1px dashed #3a3a58;color:#8a8ab8;font-size:.78rem;cursor:pointer;transition:border-color .2s;white-space:nowrap}
+  .file-label:hover{border-color:#a78bfa;color:#a78bfa}
+  input[type=file]{display:none}
+
+  /* 弹窗 */
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;}
+  .modal-bg.show{display:flex}
+  .modal{background:#0d0d20;border:1px solid #1e1e38;border-radius:10px;padding:24px;width:90%;max-width:500px;}
+  .modal h3{font-size:1rem;color:#c4b5fd;margin-bottom:16px}
+
+  /* 预览弹窗 */
+  .preview-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;}
+  .preview-bg.show{display:flex}
+  .preview-bg img{max-width:90vw;max-height:85vh;border-radius:8px;box-shadow:0 0 40px rgba(167,139,250,.15)}
+  .preview-bg video{max-width:90vw;max-height:85vh;border-radius:8px;box-shadow:0 0 40px rgba(167,139,250,.15);outline:none}
+  .preview-close{position:absolute;top:20px;right:28px;font-size:1.8rem;color:#fff;cursor:pointer;z-index:201;opacity:.6;transition:opacity .2s}
+  .preview-close:hover{opacity:1}
+  .preview-title{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:#ccc;font-size:.85rem}
+
+  .msg{font-size:.8rem;padding:8px 12px;border-radius:5px;margin-bottom:12px;display:none}
+  .msg.ok{display:block;background:rgba(52,211,153,.12);color:#34d399;border:1px solid rgba(52,211,153,.15)}
+  .msg.err{display:block;background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.15)}
+</style>
+</head>
+<body>
+
+<h1>作品集管理</h1>
+<a href="/" class="back">← 返回首页</a>
+<div id="msg" class="msg"></div>
+
+<h2>视频</h2>
+<div id="video-list" class="list"></div>
+<form id="video-form">
+  <div class="row"><input name="title" placeholder="标题" required><input name="url" placeholder="视频链接（可选）"></div>
+  <input name="desc" placeholder="描述">
+  <div class="btn-row">
+    <input name="thumbnail" placeholder="封面图路径" value="images/placeholder-video.svg" style="flex:1">
+    <label class="file-label" for="video-file">📁 上传</label>
+    <input type="file" id="video-file" accept="image/*,video/*">
+    <span class="upload-status" id="video-upload-status">✓</span>
+  </div>
+  <button type="submit">添加视频</button>
+</form>
+
+<h2>摄影 / 图片</h2>
+<div id="photo-list" class="list"></div>
+<form id="photo-form">
+  <div class="row"><input name="title" placeholder="标题" required><input name="url" placeholder="链接（可选）"></div>
+  <input name="desc" placeholder="描述">
+  <div class="btn-row">
+    <input name="thumbnail" placeholder="封面图路径" value="images/placeholder-photo.svg" style="flex:1">
+    <label class="file-label" for="photo-file">📁 上传</label>
+    <input type="file" id="photo-file" accept="image/*">
+    <span class="upload-status" id="photo-upload-status">✓</span>
+  </div>
+  <button type="submit">添加图片</button>
+</form>
+
+<h2>创作</h2>
+<div id="creation-list" class="list"></div>
+<form id="creation-form">
+  <div class="row"><input name="title" placeholder="标题" required><input name="url" placeholder="链接（可选）"></div>
+  <input name="desc" placeholder="描述">
+  <div class="btn-row">
+    <input name="thumbnail" placeholder="封面图路径" value="images/placeholder-photo.svg" style="flex:1">
+    <label class="file-label" for="creation-file">📁 上传</label>
+    <input type="file" id="creation-file" accept="image/*">
+    <span class="upload-status" id="creation-upload-status">✓</span>
+  </div>
+  <button type="submit">添加创作</button>
+</form>
+
+<!-- 编辑弹窗 -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <h3>编辑</h3>
+    <form id="edit-form">
+      <input name="title" placeholder="标题" required>
+      <input name="url" placeholder="链接">
+      <input name="desc" placeholder="描述">
+      <div class="btn-row">
+        <input name="thumbnail" placeholder="封面图路径" style="flex:1">
+        <label class="file-label" for="edit-file">📁 上传</label>
+        <input type="file" id="edit-file" accept="image/*,video/*">
+        <span class="upload-status" id="edit-upload-status">✓</span>
+      </div>
+      <div class="row">
+        <button type="submit">保存</button>
+        <button type="button" class="cancel" onclick="closeModal()">取消</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 预览弹窗 -->
+<div class="preview-bg" id="preview-bg">
+  <span class="preview-close" onclick="closePreview()">&times;</span>
+  <div id="preview-content"></div>
+  <span class="preview-title" id="preview-title"></span>
+</div>
+
+<script>
+const API = '/api/portfolio';
+let editing = null;
+
+function msg(text, ok) {
+  const el = document.getElementById('msg');
+  el.textContent = text; el.className = 'msg ' + (ok ? 'ok' : 'err');
+  setTimeout(() => el.className = 'msg', 2500);
+}
+
+async function uploadFile(inputEl, statusEl, thumbInput) {
+  const file = inputEl.files[0];
+  if (!file) return;
+  statusEl.textContent = '...'; statusEl.classList.add('show');
+  const fd = new FormData(); fd.append('file', file);
+  try {
+    const res = await fetch('/api/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.ok) { thumbInput.value = data.path; statusEl.textContent = '✓'; }
+    else { statusEl.textContent = '✗'; }
+  } catch { statusEl.textContent = '✗'; }
+}
+
+['video','photo','creation'].forEach(type => {
+  const input = document.getElementById(type + '-file');
+  const status = document.getElementById(type + '-upload-status');
+  const form = document.getElementById(type + '-form');
+  input.onchange = () => uploadFile(input, status, form.thumbnail);
+});
+document.getElementById('edit-file').onchange = function() {
+  uploadFile(this, document.getElementById('edit-upload-status'), document.getElementById('edit-form').thumbnail);
+};
+
+// 预览
+function openPreview(item) {
+  const bg = document.getElementById('preview-bg');
+  const content = document.getElementById('preview-content');
+  const title = document.getElementById('preview-title');
+  const src = item.thumbnail;
+  const isVideo = /\.(mp4|mov|avi|mkv|webm|flv)$/i.test(src);
+
+  title.textContent = item.title;
+  if (isVideo) {
+    content.innerHTML = `<video src="${src}" controls autoplay style="max-width:90vw;max-height:80vh;border-radius:8px;"></video>`;
+  } else {
+    content.innerHTML = `<img src="${src}" alt="${item.title}" style="max-width:90vw;max-height:80vh;border-radius:8px;">`;
+  }
+  bg.classList.add('show');
+}
+
+function closePreview() {
+  const bg = document.getElementById('preview-bg');
+  bg.classList.remove('show');
+  document.getElementById('preview-content').innerHTML = '';
+}
+
+document.getElementById('preview-bg').onclick = function(e) {
+  if (e.target === this) closePreview();
+};
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePreview(); });
+
+function buildItem(item, i, type) {
+  const div = document.createElement('div');
+  div.className = 'item';
+  const isVideo = /\.(mp4|mov|avi|mkv|webm|flv)$/i.test(item.thumbnail);
+  const thumbHtml = isVideo
+    ? `<div style="width:80px;height:50px;border-radius:4px;background:#050510;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;">▶</div>`
+    : `<img src="${item.thumbnail}" alt="">`;
+  div.innerHTML = `
+    ${thumbHtml}
+    <div class="item-info"><strong>${item.title}</strong><span>${item.desc}</span></div>
+    <div class="btns">
+      <button class="preview-btn">预览</button>
+      <button class="edit-btn">编辑</button>
+      <button class="del-btn">删除</button>
+    </div>`;
+  div.querySelector('.preview-btn').onclick = () => openPreview(item);
+  div.querySelector('.edit-btn').onclick = () => openEdit(item, i, type);
+  div.querySelector('.del-btn').onclick = async () => {
+    if (!confirm('确认删除「' + item.title + '」？')) return;
+    const res = await fetch(API + '/' + type + 's/' + i, { method: 'DELETE' });
+    if (res.ok) { msg('已删除', true); load(); }
+    else msg('删除失败', false);
+  };
+  return div;
+}
+
+function renderList(id, items, type) {
+  const el = document.getElementById(id);
+  el.innerHTML = '';
+  if (!items.length) { el.innerHTML = '<div class="empty">暂无内容</div>'; return; }
+  items.forEach((item, i) => el.appendChild(buildItem(item, i, type)));
+}
+
+async function load() {
+  try {
+    const res = await fetch(API); const data = await res.json();
+    renderList('video-list', data.videos || [], 'video');
+    renderList('photo-list', data.photos || [], 'photo');
+    renderList('creation-list', data.creations || [], 'creation');
+  } catch { msg('加载失败', false); }
+}
+
+function openEdit(item, i, type) {
+  editing = { type, index: i };
+  const form = document.getElementById('edit-form');
+  form.title.value = item.title;
+  form.desc.value = item.desc || '';
+  form.url.value = item.url || '';
+  form.thumbnail.value = item.thumbnail;
+  document.getElementById('edit-upload-status').classList.remove('show');
+  document.getElementById('edit-file').value = '';
+  document.getElementById('modal-bg').classList.add('show');
+}
+
+function closeModal() { document.getElementById('modal-bg').classList.remove('show'); editing = null; }
+
+document.getElementById('edit-form').onsubmit = async function(e) {
+  e.preventDefault();
+  if (!editing) return;
+  const form = e.target;
+  const item = {
+    title: form.title.value.trim(), desc: form.desc.value.trim(),
+    thumbnail: form.thumbnail.value.trim(), url: form.url.value.trim(),
+  };
+  if (!item.title) return msg('标题不能为空', false);
+  const res = await fetch(API + '/' + editing.type + 's/' + editing.index, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(item),
+  });
+  if (res.ok) { msg('已保存', true); closeModal(); load(); }
+  else msg('保存失败', false);
+};
+
+async function addItem(e, type) {
+  e.preventDefault();
+  const form = e.target;
+  const item = {
+    title: form.title.value.trim(), desc: form.desc.value.trim(),
+    thumbnail: form.thumbnail.value.trim(), url: form.url.value.trim(),
+  };
+  if (!item.title) return msg('标题不能为空', false);
+  const res = await fetch(API + '/' + type + 's', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(item),
+  });
+  if (res.ok) {
+    msg('已添加', true); form.reset();
+    form.thumbnail.value = type === 'video' ? 'images/placeholder-video.svg' : 'images/placeholder-photo.svg';
+    document.getElementById(type + '-upload-status').classList.remove('show');
+    load();
+  } else msg('添加失败', false);
+}
+
+document.getElementById('video-form').onsubmit = (e) => addItem(e, 'video');
+document.getElementById('photo-form').onsubmit = (e) => addItem(e, 'photo');
+document.getElementById('creation-form').onsubmit = (e) => addItem(e, 'creation');
+document.getElementById('modal-bg').onclick = function(e) { if (e.target === this) closeModal(); };
+
+load();
+</script>
+</body>
+</html>
