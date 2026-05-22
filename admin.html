@@ -59,10 +59,15 @@
     h1{font-size:1.2rem}
     .item{flex-wrap:wrap;gap:10px}
     .item .btns{width:100%;justify-content:flex-end}
-    form .row{flex-direction:column}
-    form .btn-row{flex-wrap:wrap}
+    .item img{width:60px;height:40px}
+    form .row{flex-direction:column;gap:8px}
+    form .btn-row{flex-wrap:wrap;gap:8px}
+    form .btn-row input{min-width:100%}
     .file-label{font-size:.72rem;padding:6px 10px}
+    form button{width:100%}
     .modal{width:95%;padding:16px}
+    .setup input{font-size:.7rem}
+    form input,form textarea{font-size:16px}
   }
   .msg{font-size:.8rem;padding:8px 12px;border-radius:5px;margin-bottom:12px;display:none}
   .msg.ok{display:block;background:rgba(52,211,153,.12);color:#34d399;border:1px solid rgba(52,211,153,.15)}
@@ -73,7 +78,7 @@
 <body>
 
 <h1>作品集管理 <span class="status" id="sync-status"></span></h1>
-<a href="/" class="back">← 返回首页</a>
+<a href="https://uystudio.github.io/resume-website/" class="back">← 返回首页</a>
 
 <div class="setup" id="setup" style="display:none">
   <p style="font-size:.82rem;color:#6a6a88;margin-bottom:8px;">GitHub Token（存储在本地浏览器）</p>
@@ -158,6 +163,14 @@
 const OWNER = 'uystudio';
 const REPO = 'resume-website';
 const API = `https://api.github.com/repos/${OWNER}/${REPO}/contents`;
+const RAW = `https://raw.githubusercontent.com/${OWNER}/${REPO}/main`;
+
+// 显示用 raw URL（立即可见），存储用相对路径
+function thumbSrc(path) {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return RAW + '/' + path;
+}
 
 let token = localStorage.getItem('gh_token') || '';
 let data = { videos: [], photos: [], creations: [] };
@@ -247,7 +260,7 @@ function buildItem(item, i, type) {
   const isVideo = /\.(mp4|mov|avi|mkv|webm|flv)/i.test(item.thumbnail);
   const thumbHtml = isVideo
     ? `<div style="width:80px;height:50px;border-radius:4px;background:#050510;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;">▶</div>`
-    : `<img src="${item.thumbnail}" alt="">`;
+    : `<img src="${thumbSrc(item.thumbnail)}" alt="">`;
   div.innerHTML = `
     ${thumbHtml}
     <div class="item-info"><strong>${item.title}</strong><span>${item.desc}</span></div>
@@ -286,9 +299,10 @@ function openPreview(item) {
   const bg = document.getElementById('preview-bg');
   const isVid = /\.(mp4|mov|avi|mkv|webm|flv)/i.test(item.thumbnail);
   document.getElementById('preview-title').textContent = item.title;
+  const src = thumbSrc(item.thumbnail);
   document.getElementById('preview-content').innerHTML = isVid
-    ? `<video src="${item.thumbnail}" controls autoplay></video>`
-    : `<img src="${item.thumbnail}" alt="${item.title}">`;
+    ? `<video src="${src}" controls autoplay></video>`
+    : `<img src="${src}" alt="${item.title}">`;
   bg.classList.add('show');
 }
 function closePreview() {
