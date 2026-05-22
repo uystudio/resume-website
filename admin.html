@@ -81,7 +81,13 @@
 <a href="https://uystudio.github.io/resume-website/" class="back">← 返回首页</a>
 
 <div class="setup" id="setup" style="display:none">
-  <p style="font-size:.82rem;color:#6a6a88;margin-bottom:8px;">GitHub Token（存储在本地浏览器）</p>
+  <p style="font-size:.84rem;color:#e0e0f0;margin-bottom:6px;">需要 GitHub 授权令牌</p>
+  <p style="font-size:.74rem;color:#6a6a88;margin-bottom:12px;line-height:1.6;">
+    后台通过它保存数据到你的 GitHub 仓库。<br>
+    <b>获取方式：</b><a href="https://github.com/settings/tokens" target="_blank" style="color:#a78bfa;">github.com/settings/tokens</a>
+    → Generate new token (classic) → 勾选 <b>repo</b> → Generate → 复制<br>
+    <b>只需输入一次</b>，之后浏览器自动记住。
+  </p>
   <input id="token-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
   <button onclick="saveToken()">保存</button>
 </div>
@@ -176,13 +182,22 @@ let token = localStorage.getItem('gh_token') || '';
 let data = { videos: [], photos: [], creations: [] };
 let editing = null;
 
+// 从 URL hash 自动提取 token（如 #gho_xxx 或 #ghp_xxx）
+if (!token && window.location.hash) {
+  const h = window.location.hash.substring(1);
+  if (h.startsWith('gho_') || h.startsWith('ghp_')) {
+    token = h;
+    localStorage.setItem('gh_token', token);
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+}
+
 function msg(text, ok) {
   const el = document.getElementById('msg');
   el.textContent = text; el.className = 'msg ' + (ok ? 'ok' : 'err');
   setTimeout(() => el.className = 'msg', 2500);
 }
 
-// Token 管理
 function saveToken() {
   token = document.getElementById('token-input').value.trim();
   if (!token) return msg('请输入 Token', false);
@@ -191,11 +206,7 @@ function saveToken() {
   load();
 }
 
-if (!token) {
-  document.getElementById('setup').style.display = 'block';
-} else {
-  document.getElementById('setup').style.display = 'none';
-}
+document.getElementById('setup').style.display = token ? 'none' : 'block';
 
 // GitHub API 请求
 async function gh(path, method = 'GET', body = null) {
