@@ -7,21 +7,24 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <canvas id="particles"></canvas>
 
   <nav>
-    <a href="#" class="nav-brand">帕尔哈提</a>
+    <a href="#" class="nav-brand">Parhat</a>
     <span class="nav-links">
-      <a href="#about">关于</a>
-      <a href="#skills">技能</a>
-      <a href="#work">作品</a>
-      <a href="#contact">联系</a>
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#work">Work</a>
+      <a href="#contact">Contact</a>
     </span>
   </nav>
 
   <header>
-    <div class="avatar"><img src="images/avatar-placeholder.svg" alt=""></div>
-    <h1 data-text="帕尔哈提·艾力">帕尔哈提·艾力</h1>
-    <p class="hero-line">电商 / 前端 / 剪辑 &mdash; 新疆 · 营口</p>
+    <div class="hero-inner">
+      <div class="avatar"><img src="images/avatar.png" alt=""></div>
+      <h1>帕尔哈提·艾力</h1>
+      <p class="hero-line">电商 / 前端 / 剪辑 &mdash; 新疆 · 营口</p>
+    </div>
   </header>
 
   <!-- 01 关于 -->
@@ -33,10 +36,10 @@
       <p>熟练使用 Photoshop 做图片设计与精修，能独立用 Premiere Pro 和剪映完成视频剪辑。正在系统学习 HTML、CSS 与 JavaScript，目标是成为一个真正能把设计写成代码的前端工程师。</p>
     </div>
     <ul class="info-list">
-      <li>营口职业技术学院<span>学校</span></li>
-      <li>电子商务<span>专业</span></li>
-      <li>大专 · 大三在读<span>学历</span></li>
-      <li>新疆<span>家乡</span></li>
+      <li><span>学校</span>营口职业技术学院</li>
+      <li><span>专业</span>电子商务</li>
+      <li><span>学历</span>大专 · 大三在读</li>
+      <li><span>家乡</span>新疆</li>
     </ul>
   </section>
 
@@ -106,7 +109,7 @@
       <a class="card" href="#">
         <span class="card-num">03</span>
         <h4>个人简历站</h4>
-        <p>本页面。纯手写 HTML/CSS，Express 后端，赛博朋克视觉风格。</p>
+        <p>本页面。纯手写 HTML/CSS，Express 后端，Apple 风格设计。</p>
         <span class="chip">全栈</span>
       </a>
     </div>
@@ -139,5 +142,73 @@
   </footer>
 
   <script src="app.js"></script>
+  <script>
+  (function() {
+    var canvas = document.getElementById('particles');
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var count = 60;
+    var w, h;
+
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    for (var i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        r: Math.random() * 1.5 + 0.5,
+        alpha: Math.random() * 0.4 + 0.1
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+
+      for (var i = 0; i < count; i++) {
+        var p = particles[i];
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0) p.x = w;
+        if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h;
+        if (p.y > h) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(10, 132, 255, ' + p.alpha + ')';
+        ctx.fill();
+
+        // Connect nearby particles
+        for (var j = i + 1; j < count; j++) {
+          var p2 = particles[j];
+          var dx = p.x - p2.x;
+          var dy = p.y - p2.y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = 'rgba(10, 132, 255, ' + (0.04 * (1 - dist / 120)) + ')';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  })();
+  </script>
 </body>
 </html>

@@ -1,36 +1,135 @@
 {
-  "videos": [
-    {
-      "title": "1",
-      "desc": "",
-      "thumbnail": "images/1779432588678-625393604.jpg",
-      "url": ""
+  "site": {
+    "name": "艾力",
+    "tagline": "电商 / 前端 / 剪辑 — 新疆 · 营口",
+    "avatar": "images/avatar.png",
+    "about": [
+      "营口职业技术学院电子商务专业大三在读。课程涵盖电商概论、市场营销、网页设计、数据分析与 Photoshop，我对电商业务链路有完整认知。",
+      "熟练使用 Photoshop 做图片设计与精修，能独立用 Premiere Pro 和剪映完成视频剪辑。正在系统学习 HTML、CSS 与 JavaScript，目标是成为一个真正能把设计写成代码的前端工程师。"
+    ],
+    "info": [
+      {
+        "label": "学校",
+        "value": "营口职业技术学院"
+      },
+      {
+        "label": "专业",
+        "value": "电子商务"
+      },
+      {
+        "label": "学历",
+        "value": "大专 · 大三在读"
+      },
+      {
+        "label": "家乡",
+        "value": "新疆"
+      }
+    ],
+    "skills": [
+      {
+        "name": "Photoshop",
+        "level": "熟练",
+        "width": 70
+      },
+      {
+        "name": "Premiere Pro",
+        "level": "熟练",
+        "width": 70
+      },
+      {
+        "name": "剪映",
+        "level": "熟练",
+        "width": 80
+      },
+      {
+        "name": "HTML / CSS",
+        "level": "学习中",
+        "width": 35
+      },
+      {
+        "name": "Excel",
+        "level": "基础",
+        "width": 45
+      },
+      {
+        "name": "JavaScript",
+        "level": "即将开始",
+        "width": 5
+      }
+    ],
+    "projects": [
+      {
+        "title": "电商商品页",
+        "desc": "仿京东商详，Flex + Grid 布局，含价格区、规格选择与购物车模块。",
+        "chip": "HTML/CSS"
+      },
+      {
+        "title": "促销落地页",
+        "desc": "大促专题页，全屏 Hero + 倒计时 + 商品卡片，适配手机端。",
+        "chip": "响应式"
+      },
+      {
+        "title": "个人简历站",
+        "desc": "本页面。纯手写 HTML/CSS，Express 后端，Apple 风格设计。",
+        "chip": "全栈"
+      }
+    ],
+    "contact": {
+      "intro": "欢迎随时联系，期待与您合作。",
+      "email": "2979098792@QQ.com",
+      "phone": "19239975723"
+    },
+    "footer": {
+      "name": "帕尔哈提·艾力",
+      "school": "营口职业技术学院 · 电子商务",
+      "year": "2025"
     }
-  ],
+  },
+  "videos": [],
   "photos": [
     {
       "title": "world",
       "desc": "",
       "thumbnail": "images/1779428866602-873399829.jpg",
-      "url": ""
+      "url": "",
+      "tags": [],
+      "date": "",
+      "featured": false,
+      "order": 0,
+      "_idx": 0
     },
     {
       "title": "风车",
       "desc": "",
       "thumbnail": "images/1779428883990-908159766.jpg",
-      "url": ""
+      "url": "",
+      "tags": [],
+      "date": "",
+      "featured": false,
+      "order": 1,
+      "_idx": 1
     },
     {
       "title": "野外",
       "desc": "",
       "thumbnail": "images/1779428898686-635713647.jpg",
-      "url": ""
+      "url": "",
+      "tags": [],
+      "date": "",
+      "featured": false,
+      "order": 2,
+      "_idx": 2
     },
     {
       "title": "大海",
       "desc": "",
       "thumbnail": "images/1779428940536-166823829.jpg",
-      "url": ""
+      "url": "",
+      "tags": [],
+      "date": "",
+      "featured": false,
+      "order": 3,
+      "_idx": 3
     }
   ],
   "creations": []
