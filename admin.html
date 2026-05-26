@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -326,6 +326,7 @@ const OWNER = 'uystudio', REPO = 'resume-website';
 const GH_API = `https://api.github.com/repos/${OWNER}/${REPO}/contents`;
 const RAW = `https://raw.githubusercontent.com/${OWNER}/${REPO}/main`;
 const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const RENDER_API = localStorage.getItem('render_api') || '';  // 在 Render 部署后设置后端地址
 
 let token = localStorage.getItem('gh_token') || '';
 let data = { site: {}, videos: [], photos: [], creations: [] };
@@ -340,7 +341,7 @@ if (!token && location.hash) {
     history.replaceState(null, '', location.pathname + location.search);
   }
 }
-if (isLocal) { token = 'LOCAL'; localStorage.setItem('gh_token', token); }
+if (isLocal || RENDER_API) { token = 'LOCAL'; localStorage.setItem('gh_token', token); }
 document.getElementById('setup').style.display = token ? 'none' : 'block';
 
 // ===== 工具 =====

@@ -1,4 +1,4 @@
-// === 音效引擎 ===
+﻿// === 音效引擎 ===
 var Sound = (function() {
   var ctx = null;
   function getCtx() {
@@ -29,7 +29,8 @@ var Sound = (function() {
 
 // === 数据加载 ===
 var siteData = null;
-var API = '/api/portfolio';
+var RENDER_API_APP = localStorage.getItem('render_api') || '';
+var API = RENDER_API_APP ? RENDER_API_APP + '/api/portfolio' : '/api/portfolio';
 
 async function loadData() {
   try {
