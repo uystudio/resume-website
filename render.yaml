@@ -1,0 +1,11 @@
+﻿services:
+  - type: web
+    name: resume-website-api
+    runtime: node
+    repo: https://github.com/uystudio/resume-website
+    branch: main
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 3000
